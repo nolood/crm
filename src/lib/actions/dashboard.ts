@@ -32,6 +32,13 @@ export async function getDashboardData(period: 'week' | 'month' | 'all' = 'month
 
   const revenue = orders?.reduce((sum, o) => sum + Number(o.total_price), 0) ?? 0
 
+  // Other expenses
+  let expensesQuery = supabase.from('expenses').select('amount')
+  if (dateFilter) expensesQuery = expensesQuery.gte('date', dateFilter)
+  const { data: otherExpenses } = await expensesQuery
+
+  const otherExpensesTotal = otherExpenses?.reduce((sum, e) => sum + Number(e.amount), 0) ?? 0
+
   // Low stock ingredients
   const { data: lowStock } = await supabase
     .from('ingredients')
@@ -40,8 +47,9 @@ export async function getDashboardData(period: 'week' | 'month' | 'all' = 'month
 
   return {
     expenses,
+    otherExpenses: otherExpensesTotal,
     revenue,
-    profit: revenue - expenses,
+    profit: revenue - expenses - otherExpensesTotal,
     ingredients: lowStock ?? [],
   }
 }

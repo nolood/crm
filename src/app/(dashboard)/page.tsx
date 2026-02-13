@@ -17,15 +17,26 @@ export default async function DashboardPage() {
     <div className="space-y-6">
       <h1 className="text-2xl font-bold">Дашборд</h1>
 
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-4">
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              Расходы (месяц)
+              Расходы на закупки (месяц)
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{data.expenses.toLocaleString('ru-RU')} ₽</div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Прочие расходы (месяц)
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-orange-600">{data.otherExpenses.toLocaleString('ru-RU')} ₽</div>
           </CardContent>
         </Card>
 

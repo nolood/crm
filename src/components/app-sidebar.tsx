@@ -23,6 +23,7 @@ const MENU_ITEMS = [
   { title: 'Производство', href: '/production' },
   { title: 'Клиенты', href: '/clients' },
   { title: 'Заказы', href: '/orders' },
+  { title: 'Расходы', href: '/expenses' },
 ] as const
 
 export function AppSidebar() {

@@ -88,6 +88,16 @@ export type OrderItem = {
   recipe?: Recipe
 }
 
+export type Expense = {
+  id: string
+  user_id: string
+  category: string
+  description: string
+  amount: number
+  date: string
+  created_at: string
+}
+
 export type ActionResult = {
   success: boolean
   error?: string
