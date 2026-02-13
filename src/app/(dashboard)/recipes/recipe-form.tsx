@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react'
-import { createRecipe } from '@/lib/actions/recipes'
+import { useState, useEffect } from 'react'
+import { createRecipe, updateRecipe } from '@/lib/actions/recipes'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -20,17 +20,42 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { toast } from 'sonner'
-import type { Ingredient } from '@/lib/types'
+import type { Ingredient, Recipe } from '@/lib/types'
 
-export function RecipeForm({ ingredients }: { ingredients: Ingredient[] }) {
-  const [open, setOpen] = useState(false)
+interface RecipeFormProps {
+  ingredients: Ingredient[]
+  recipe?: Recipe
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
+}
+
+export function RecipeForm({ ingredients, recipe, open, onOpenChange }: RecipeFormProps) {
+  const [internalOpen, setInternalOpen] = useState(false)
+  const isOpen = open ?? internalOpen
+  const setIsOpen = onOpenChange ?? setInternalOpen
   const [name, setName] = useState('')
   const [outputQty, setOutputQty] = useState('1')
   const [unit, setUnit] = useState('шт')
+  const [price, setPrice] = useState('')
   const [items, setItems] = useState<{ ingredient_id: string; quantity: string }[]>([
     { ingredient_id: '', quantity: '' },
   ])
   const [isPending, setIsPending] = useState(false)
+
+  useEffect(() => {
+    if (recipe) {
+      setName(recipe.name)
+      setOutputQty(String(recipe.output_quantity))
+      setUnit(recipe.unit)
+      setPrice(recipe.price != null ? String(recipe.price) : '')
+      setItems(
+        recipe.recipe_items?.map((item) => ({
+          ingredient_id: item.ingredient_id,
+          quantity: String(item.quantity),
+        })) ?? [{ ingredient_id: '', quantity: '' }]
+      )
+    }
+  }, [recipe])
 
   function addItem() {
     setItems([...items, { ingredient_id: '', quantity: '' }])
@@ -50,28 +75,41 @@ export function RecipeForm({ ingredients }: { ingredients: Ingredient[] }) {
     setName('')
     setOutputQty('1')
     setUnit('шт')
+    setPrice('')
     setItems([{ ingredient_id: '', quantity: '' }])
   }
 
   async function handleSubmit() {
     setIsPending(true)
     try {
-      const result = await createRecipe({
-        name,
-        output_quantity: Number(outputQty),
-        unit,
-        items: items
-          .filter((item) => item.ingredient_id && item.quantity)
-          .map((item) => ({
-            ingredient_id: item.ingredient_id,
-            quantity: Number(item.quantity),
-          })),
-      })
+      const validItems = items
+        .filter((item) => item.ingredient_id && item.quantity)
+        .map((item) => ({
+          ingredient_id: item.ingredient_id,
+          quantity: Number(item.quantity),
+        }))
+
+      const result = recipe
+        ? await updateRecipe({
+            id: recipe.id,
+            name,
+            output_quantity: Number(outputQty),
+            unit,
+            price: price ? Number(price) : null,
+            items: validItems,
+          })
+        : await createRecipe({
+            name,
+            output_quantity: Number(outputQty),
+            unit,
+            price: price ? Number(price) : null,
+            items: validItems,
+          })
 
       if (result.success) {
-        toast.success('Рецепт создан')
-        setOpen(false)
-        resetForm()
+        toast.success(recipe ? 'Рецепт обновлён' : 'Рецепт создан')
+        setIsOpen(false)
+        if (!recipe) resetForm()
       } else {
         toast.error(result.error)
       }
@@ -81,13 +119,15 @@ export function RecipeForm({ ingredients }: { ingredients: Ingredient[] }) {
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button>Добавить рецепт</Button>
-      </DialogTrigger>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      {!recipe && (
+        <DialogTrigger asChild>
+          <Button>Добавить рецепт</Button>
+        </DialogTrigger>
+      )}
       <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Новый рецепт</DialogTitle>
+          <DialogTitle>{recipe ? 'Редактировать рецепт' : 'Новый рецепт'}</DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
           <div className="space-y-2">
@@ -121,6 +161,18 @@ export function RecipeForm({ ingredients }: { ingredients: Ingredient[] }) {
                 </SelectContent>
               </Select>
             </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Цена по умолчанию</Label>
+            <Input
+              type="number"
+              value={price}
+              onChange={(e) => setPrice(e.target.value)}
+              min="0"
+              step="0.01"
+              placeholder="Цена ₽"
+            />
           </div>
 
           <div className="space-y-2">
@@ -163,7 +215,13 @@ export function RecipeForm({ ingredients }: { ingredients: Ingredient[] }) {
           </div>
 
           <Button onClick={handleSubmit} className="w-full" disabled={isPending}>
-            {isPending ? 'Создание...' : 'Создать рецепт'}
+            {recipe
+              ? isPending
+                ? 'Сохранение...'
+                : 'Сохранить'
+              : isPending
+                ? 'Создание...'
+                : 'Создать рецепт'}
           </Button>
         </div>
       </DialogContent>

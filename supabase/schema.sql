@@ -31,6 +31,7 @@ create table if not exists public.recipes (
   name text not null,
   output_quantity numeric not null default 1,
   unit text not null default 'шт',
+  price numeric default null,
   created_at timestamptz not null default now()
 );
 
@@ -75,6 +76,7 @@ create table if not exists public.orders (
   status text not null default 'new' check (status in ('new', 'in_progress', 'ready', 'delivered', 'cancelled')),
   total_price numeric not null default 0,
   date date not null default current_date,
+  delivery_time text,
   created_at timestamptz not null default now()
 );
 

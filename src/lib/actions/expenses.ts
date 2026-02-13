@@ -40,6 +40,7 @@ export async function createExpense(formData: FormData): Promise<ActionResult> {
   if (error) return { success: false, error: error.message }
 
   revalidatePath('/expenses')
+  revalidatePath('/analytics')
   revalidatePath('/')
   return { success: true }
 }
@@ -51,6 +52,7 @@ export async function deleteExpense(id: string): Promise<ActionResult> {
   if (error) return { success: false, error: error.message }
 
   revalidatePath('/expenses')
+  revalidatePath('/analytics')
   revalidatePath('/')
   return { success: true }
 }

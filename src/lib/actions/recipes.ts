@@ -2,7 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
-import type { ActionResult } from '@/lib/types'
+import type { ActionResult, UpdateRecipeData } from '@/lib/types'
 
 export async function getRecipes() {
   const supabase = await createClient()
@@ -31,6 +31,7 @@ export async function createRecipe(data: {
   name: string
   output_quantity: number
   unit: string
+  price?: number | null
   items: { ingredient_id: string; quantity: number }[]
 }): Promise<ActionResult> {
   const supabase = await createClient()
@@ -48,6 +49,7 @@ export async function createRecipe(data: {
       name: data.name,
       output_quantity: data.output_quantity,
       unit: data.unit,
+      price: data.price ?? null,
     })
     .select()
     .single()
@@ -77,5 +79,48 @@ export async function deleteRecipe(id: string): Promise<ActionResult> {
   if (error) return { success: false, error: error.message }
 
   revalidatePath('/recipes')
+  return { success: true }
+}
+
+export async function updateRecipe(data: UpdateRecipeData): Promise<ActionResult> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { success: false, error: 'Не авторизован' }
+
+  if (!data.name || data.items.length === 0) {
+    return { success: false, error: 'Укажите название и хотя бы один ингредиент' }
+  }
+
+  const { error: updateError } = await supabase
+    .from('recipes')
+    .update({
+      name: data.name,
+      output_quantity: data.output_quantity,
+      unit: data.unit,
+      price: data.price,
+    })
+    .eq('id', data.id)
+
+  if (updateError) return { success: false, error: updateError.message }
+
+  const { error: deleteError } = await supabase
+    .from('recipe_items')
+    .delete()
+    .eq('recipe_id', data.id)
+
+  if (deleteError) return { success: false, error: deleteError.message }
+
+  const recipeItems = data.items.map((item) => ({
+    recipe_id: data.id,
+    ingredient_id: item.ingredient_id,
+    quantity: item.quantity,
+  }))
+
+  const { error: itemsError } = await supabase.from('recipe_items').insert(recipeItems)
+
+  if (itemsError) return { success: false, error: itemsError.message }
+
+  revalidatePath('/recipes')
+  revalidatePath('/production')
   return { success: true }
 }

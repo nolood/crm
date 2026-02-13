@@ -1,6 +1,7 @@
 'use client'
 
 import { updateOrderStatus } from '@/lib/actions/orders'
+import { ORDER_STATUSES } from '@/lib/constants'
 import {
   Select,
   SelectContent,
@@ -9,14 +10,6 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { toast } from 'sonner'
-
-const STATUSES = [
-  { value: 'new', label: 'Новый' },
-  { value: 'in_progress', label: 'В работе' },
-  { value: 'ready', label: 'Готов' },
-  { value: 'delivered', label: 'Выдан' },
-  { value: 'cancelled', label: 'Отменён' },
-] as const
 
 interface OrderStatusProps {
   orderId: string
@@ -39,7 +32,7 @@ export function OrderStatus({ orderId, currentStatus }: OrderStatusProps) {
         <SelectValue />
       </SelectTrigger>
       <SelectContent>
-        {STATUSES.map((s) => (
+        {ORDER_STATUSES.map((s) => (
           <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>
         ))}
       </SelectContent>

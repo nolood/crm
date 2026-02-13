@@ -41,6 +41,7 @@ export async function createPurchase(formData: FormData): Promise<ActionResult> 
 
   revalidatePath('/purchases')
   revalidatePath('/inventory')
+  revalidatePath('/analytics')
   revalidatePath('/')
   return { success: true }
 }
@@ -73,6 +74,7 @@ export async function updatePurchase(formData: FormData): Promise<ActionResult> 
 
   revalidatePath('/purchases')
   revalidatePath('/inventory')
+  revalidatePath('/analytics')
   revalidatePath('/')
   return { success: true }
 }

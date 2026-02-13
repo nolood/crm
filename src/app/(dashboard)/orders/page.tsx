@@ -2,7 +2,7 @@ import { getOrders } from '@/lib/actions/orders'
 import { getClients } from '@/lib/actions/clients'
 import { getRecipes } from '@/lib/actions/recipes'
 import { OrderForm } from './order-form'
-import { OrdersTable } from './orders-table'
+import { OrdersViewToggle } from './orders-view-toggle'
 export default async function OrdersPage() {
   const [orders, clients, recipes] = await Promise.all([
     getOrders(),
@@ -17,7 +17,7 @@ export default async function OrdersPage() {
         <OrderForm clients={clients} recipes={recipes} />
       </div>
 
-      <OrdersTable orders={orders} />
+      <OrdersViewToggle orders={orders} clients={clients} recipes={recipes} />
     </div>
   )
 }

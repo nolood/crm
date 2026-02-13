@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
@@ -10,6 +10,10 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "CRM Кондитерская",
   description: "Учёт расходов и доходов кондитерского производства",
+};
+
+export const viewport: Viewport = {
+  viewportFit: 'cover',
 };
 
 export default function RootLayout({

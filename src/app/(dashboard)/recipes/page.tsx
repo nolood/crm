@@ -16,7 +16,7 @@ export default async function RecipesPage() {
         <RecipeForm ingredients={ingredients} />
       </div>
 
-      <RecipesGrid recipes={recipes} />
+      <RecipesGrid recipes={recipes} ingredients={ingredients} />
     </div>
   )
 }

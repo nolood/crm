@@ -12,23 +12,24 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarFooter,
+  SidebarSeparator,
+  useSidebar,
 } from '@/components/ui/sidebar'
 import { LogoutButton } from '@/components/logout-button'
+import { NAV_ITEMS, isNavItemActive } from '@/lib/navigation'
 
-const MENU_ITEMS = [
-  { title: 'Дашборд', href: '/' },
-  { title: 'Склад', href: '/inventory' },
-  { title: 'Закупки', href: '/purchases' },
-  { title: 'Списания', href: '/write-offs' },
-  { title: 'Рецепты', href: '/recipes' },
-  { title: 'Производство', href: '/production' },
-  { title: 'Клиенты', href: '/clients' },
-  { title: 'Заказы', href: '/orders' },
-  { title: 'Расходы', href: '/expenses' },
-] as const
+const PRIMARY_ITEMS = NAV_ITEMS.slice(0, 5)
+const SECONDARY_ITEMS = NAV_ITEMS.slice(5)
 
 export function AppSidebar() {
   const pathname = usePathname()
+  const { setOpenMobile, isMobile } = useSidebar()
+
+  const handleLinkClick = () => {
+    if (isMobile) {
+      setOpenMobile(false)
+    }
+  }
 
   return (
     <Sidebar>
@@ -37,10 +38,30 @@ export function AppSidebar() {
           <SidebarGroupLabel>CRM Кондитерская</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {MENU_ITEMS.map((item) => (
+              {PRIMARY_ITEMS.map((item) => (
                 <SidebarMenuItem key={item.href}>
-                  <SidebarMenuButton asChild isActive={pathname === item.href}>
-                    <Link href={item.href}>{item.title}</Link>
+                  <SidebarMenuButton asChild isActive={isNavItemActive(item.href, pathname)}>
+                    <Link href={item.href} onClick={handleLinkClick}>
+                      <item.icon />
+                      <span>{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+        <SidebarSeparator />
+        <SidebarGroup>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {SECONDARY_ITEMS.map((item) => (
+                <SidebarMenuItem key={item.href}>
+                  <SidebarMenuButton asChild isActive={isNavItemActive(item.href, pathname)}>
+                    <Link href={item.href} onClick={handleLinkClick}>
+                      <item.icon />
+                      <span>{item.title}</span>
+                    </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}

@@ -41,6 +41,7 @@ export async function createWriteOff(formData: FormData): Promise<ActionResult> 
 
   revalidatePath('/write-offs')
   revalidatePath('/inventory')
+  revalidatePath('/analytics')
   revalidatePath('/')
   return { success: true }
 }
@@ -59,6 +60,7 @@ export async function deleteWriteOff(id: string): Promise<ActionResult> {
 
   revalidatePath('/write-offs')
   revalidatePath('/inventory')
+  revalidatePath('/analytics')
   revalidatePath('/')
   return { success: true }
 }

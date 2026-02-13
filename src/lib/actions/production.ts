@@ -39,6 +39,7 @@ export async function createProduction(formData: FormData): Promise<ActionResult
 
   revalidatePath('/production')
   revalidatePath('/inventory')
+  revalidatePath('/analytics')
   revalidatePath('/')
   return { success: true }
 }

@@ -1,6 +1,7 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
+import type { UpcomingOrder } from '@/lib/types'
 
 export async function getDashboardData(period: 'week' | 'month' | 'all' = 'month') {
   const supabase = await createClient()
@@ -45,18 +46,36 @@ export async function getDashboardData(period: 'week' | 'month' | 'all' = 'month
   const { data: writeOffs } = await writeOffsQuery
   const writeOffLosses = writeOffs?.reduce((sum, w) => sum + Number(w.estimated_cost), 0) ?? 0
 
-  // Low stock ingredients
-  const { data: lowStock } = await supabase
-    .from('ingredients')
-    .select('*')
-    .order('stock_qty', { ascending: true })
-
   return {
     expenses,
     otherExpenses: otherExpensesTotal,
     writeOffLosses,
     revenue,
     profit: revenue - expenses - otherExpensesTotal - writeOffLosses,
-    ingredients: lowStock ?? [],
   }
+}
+
+export async function getUpcomingOrders(): Promise<UpcomingOrder[]> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return []
+
+  const today = new Date()
+  const dayAfterTomorrow = new Date(today)
+  dayAfterTomorrow.setDate(today.getDate() + 2)
+
+  const todayStr = today.toISOString().split('T')[0]
+  const dayAfterStr = dayAfterTomorrow.toISOString().split('T')[0]
+
+  const { data, error } = await supabase
+    .from('orders')
+    .select('*, client:clients(name), order_items(*, recipe:recipes(name))')
+    .gte('date', todayStr)
+    .lte('date', dayAfterStr)
+    .not('status', 'in', '("delivered","cancelled")')
+    .order('date', { ascending: true })
+    .order('delivery_time', { ascending: true, nullsFirst: false })
+
+  if (error) return []
+  return (data ?? []) as UpcomingOrder[]
 }
