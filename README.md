@@ -1,4 +1,17 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Confectionery CRM
+
+A Next.js-based CRM system for confectionery business management, handling inventory, purchases, production, orders, clients, and expenses.
+
+## Documentation
+
+- [Architecture](./docs/architecture/) - System architecture and design
+  - [Database Schema](./docs/architecture/database-schema.md)
+- [Features](./docs/features/) - Implemented feature documentation
+  - [Purchase Edit with History](./docs/features/purchase-edit-with-history.md)
+- [Architecture Decisions](./docs/decisions/) - ADRs and technical decisions
+  - [001. Fix Double Expense Submission](./docs/decisions/001-fix-double-expense-submission.md)
+  - [002. Purchase Edit History Architecture](./docs/decisions/002-purchase-edit-history-architecture.md)
+- [Plans](./docs/plans/) - Project planning and design documents
 
 ## Getting Started
 

@@ -40,6 +40,7 @@ export function OrderForm({ clients, recipes }: OrderFormProps) {
   const [items, setItems] = useState<OrderItemFormData[]>([
     { recipe_id: '', quantity: '1', price: '' },
   ])
+  const [isPending, setIsPending] = useState(false)
 
   function addItem(): void {
     setItems([...items, { recipe_id: '', quantity: '1', price: '' }])
@@ -61,25 +62,30 @@ export function OrderForm({ clients, recipes }: OrderFormProps) {
   )
 
   async function handleSubmit(): Promise<void> {
-    const result = await createOrder({
-      client_id: clientId,
-      date,
-      items: items
-        .filter((item) => item.recipe_id && item.quantity && item.price)
-        .map((item) => ({
-          recipe_id: item.recipe_id,
-          quantity: Number(item.quantity),
-          price: Number(item.price),
-        })),
-    })
+    setIsPending(true)
+    try {
+      const result = await createOrder({
+        client_id: clientId,
+        date,
+        items: items
+          .filter((item) => item.recipe_id && item.quantity && item.price)
+          .map((item) => ({
+            recipe_id: item.recipe_id,
+            quantity: Number(item.quantity),
+            price: Number(item.price),
+          })),
+      })
 
-    if (result.success) {
-      toast.success('Заказ создан')
-      setOpen(false)
-      setClientId('')
-      setItems([{ recipe_id: '', quantity: '1', price: '' }])
-    } else {
-      toast.error(result.error)
+      if (result.success) {
+        toast.success('Заказ создан')
+        setOpen(false)
+        setClientId('')
+        setItems([{ recipe_id: '', quantity: '1', price: '' }])
+      } else {
+        toast.error(result.error)
+      }
+    } finally {
+      setIsPending(false)
     }
   }
 
@@ -158,7 +164,9 @@ export function OrderForm({ clients, recipes }: OrderFormProps) {
 
           <div className="text-right font-medium">Итого: {total} ₽</div>
 
-          <Button onClick={handleSubmit} className="w-full">Создать заказ</Button>
+          <Button onClick={handleSubmit} className="w-full" disabled={isPending}>
+            {isPending ? 'Создание...' : 'Создать заказ'}
+          </Button>
         </div>
       </DialogContent>
     </Dialog>

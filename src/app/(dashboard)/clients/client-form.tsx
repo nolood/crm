@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useFormStatus } from 'react-dom'
 import { createClientAction } from '@/lib/actions/clients'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -14,6 +15,15 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog'
 import { toast } from 'sonner'
+
+function SubmitButton(): React.ReactElement {
+  const { pending } = useFormStatus()
+  return (
+    <Button type="submit" disabled={pending} className="w-full">
+      {pending ? 'Добавление...' : 'Добавить'}
+    </Button>
+  )
+}
 
 export function ClientForm(): React.ReactElement {
   const [open, setOpen] = useState<boolean>(false)
@@ -54,7 +64,7 @@ export function ClientForm(): React.ReactElement {
             <Label htmlFor="notes">Заметки</Label>
             <Textarea id="notes" name="notes" />
           </div>
-          <Button type="submit" className="w-full">Добавить</Button>
+          <SubmitButton />
         </form>
       </DialogContent>
     </Dialog>

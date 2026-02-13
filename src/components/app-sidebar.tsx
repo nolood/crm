@@ -19,6 +19,7 @@ const MENU_ITEMS = [
   { title: 'Дашборд', href: '/' },
   { title: 'Склад', href: '/inventory' },
   { title: 'Закупки', href: '/purchases' },
+  { title: 'Списания', href: '/write-offs' },
   { title: 'Рецепты', href: '/recipes' },
   { title: 'Производство', href: '/production' },
   { title: 'Клиенты', href: '/clients' },

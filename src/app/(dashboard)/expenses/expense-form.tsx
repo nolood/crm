@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useFormStatus } from 'react-dom'
 import { createExpense } from '@/lib/actions/expenses'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -27,6 +28,15 @@ const categories = [
   { value: 'rent', label: 'Аренда' },
   { value: 'other', label: 'Прочее' },
 ]
+
+function SubmitButton() {
+  const { pending } = useFormStatus()
+  return (
+    <Button type="submit" className="w-full" disabled={pending}>
+      {pending ? 'Добавление...' : 'Добавить'}
+    </Button>
+  )
+}
 
 export function ExpenseForm() {
   const [open, setOpen] = useState(false)
@@ -76,7 +86,7 @@ export function ExpenseForm() {
             <Label htmlFor="date">Дата</Label>
             <Input id="date" name="date" type="date" defaultValue={new Date().toISOString().split('T')[0]} required />
           </div>
-          <Button type="submit" className="w-full">Добавить</Button>
+          <SubmitButton />
         </form>
       </DialogContent>
     </Dialog>

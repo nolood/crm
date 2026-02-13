@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useFormStatus } from 'react-dom'
-import { createPurchase } from '@/lib/actions/purchases'
+import { createWriteOff } from '@/lib/actions/write-offs'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -27,37 +27,41 @@ function SubmitButton() {
   const { pending } = useFormStatus()
   return (
     <Button type="submit" className="w-full" disabled={pending}>
-      {pending ? 'Добавление...' : 'Добавить'}
+      {pending ? 'Списание...' : 'Списать'}
     </Button>
   )
 }
 
-export function PurchaseForm({ ingredients }: { ingredients: Ingredient[] }) {
+export function WriteOffForm({ ingredients }: { ingredients: Ingredient[] }) {
   const [open, setOpen] = useState(false)
+  const [selectedIngredientId, setSelectedIngredientId] = useState('')
+
+  const selectedIngredient = ingredients.find((ing) => ing.id === selectedIngredientId)
 
   async function handleSubmit(formData: FormData) {
-    const result = await createPurchase(formData)
+    const result = await createWriteOff(formData)
     if (result.success) {
-      toast.success('Закупка добавлена')
+      toast.success('Списание записано')
       setOpen(false)
+      setSelectedIngredientId('')
     } else {
       toast.error(result.error)
     }
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) setSelectedIngredientId('') }}>
       <DialogTrigger asChild>
-        <Button>Добавить закупку</Button>
+        <Button>Записать списание</Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Новая закупка</DialogTitle>
+          <DialogTitle>Новое списание</DialogTitle>
         </DialogHeader>
         <form action={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label>Ингредиент</Label>
-            <Select name="ingredient_id" required>
+            <Select name="ingredient_id" required value={selectedIngredientId} onValueChange={setSelectedIngredientId}>
               <SelectTrigger>
                 <SelectValue placeholder="Выберите ингредиент" />
               </SelectTrigger>
@@ -72,11 +76,16 @@ export function PurchaseForm({ ingredients }: { ingredients: Ingredient[] }) {
           </div>
           <div className="space-y-2">
             <Label htmlFor="quantity">Количество</Label>
-            <Input id="quantity" name="quantity" type="number" step="0.01" min="0" required />
+            <div className="flex items-center gap-2">
+              <Input id="quantity" name="quantity" type="number" step="0.01" min="0.01" required />
+              {selectedIngredient && (
+                <span className="text-sm text-muted-foreground whitespace-nowrap">{selectedIngredient.unit}</span>
+              )}
+            </div>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="price_per_unit">Цена за единицу (₽)</Label>
-            <Input id="price_per_unit" name="price_per_unit" type="number" step="0.01" min="0" required />
+            <Label htmlFor="note">Примечание</Label>
+            <Input id="note" name="note" placeholder="Необязательно" />
           </div>
           <div className="space-y-2">
             <Label htmlFor="date">Дата</Label>

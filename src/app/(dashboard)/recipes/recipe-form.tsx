@@ -30,6 +30,7 @@ export function RecipeForm({ ingredients }: { ingredients: Ingredient[] }) {
   const [items, setItems] = useState<{ ingredient_id: string; quantity: string }[]>([
     { ingredient_id: '', quantity: '' },
   ])
+  const [isPending, setIsPending] = useState(false)
 
   function addItem() {
     setItems([...items, { ingredient_id: '', quantity: '' }])
@@ -53,24 +54,29 @@ export function RecipeForm({ ingredients }: { ingredients: Ingredient[] }) {
   }
 
   async function handleSubmit() {
-    const result = await createRecipe({
-      name,
-      output_quantity: Number(outputQty),
-      unit,
-      items: items
-        .filter((item) => item.ingredient_id && item.quantity)
-        .map((item) => ({
-          ingredient_id: item.ingredient_id,
-          quantity: Number(item.quantity),
-        })),
-    })
+    setIsPending(true)
+    try {
+      const result = await createRecipe({
+        name,
+        output_quantity: Number(outputQty),
+        unit,
+        items: items
+          .filter((item) => item.ingredient_id && item.quantity)
+          .map((item) => ({
+            ingredient_id: item.ingredient_id,
+            quantity: Number(item.quantity),
+          })),
+      })
 
-    if (result.success) {
-      toast.success('Рецепт создан')
-      setOpen(false)
-      resetForm()
-    } else {
-      toast.error(result.error)
+      if (result.success) {
+        toast.success('Рецепт создан')
+        setOpen(false)
+        resetForm()
+      } else {
+        toast.error(result.error)
+      }
+    } finally {
+      setIsPending(false)
     }
   }
 
@@ -156,7 +162,9 @@ export function RecipeForm({ ingredients }: { ingredients: Ingredient[] }) {
             </Button>
           </div>
 
-          <Button onClick={handleSubmit} className="w-full">Создать рецепт</Button>
+          <Button onClick={handleSubmit} className="w-full" disabled={isPending}>
+            {isPending ? 'Создание...' : 'Создать рецепт'}
+          </Button>
         </div>
       </DialogContent>
     </Dialog>

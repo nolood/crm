@@ -39,6 +39,12 @@ export async function getDashboardData(period: 'week' | 'month' | 'all' = 'month
 
   const otherExpensesTotal = otherExpenses?.reduce((sum, e) => sum + Number(e.amount), 0) ?? 0
 
+  // Write-off losses
+  let writeOffsQuery = supabase.from('write_offs').select('estimated_cost')
+  if (dateFilter) writeOffsQuery = writeOffsQuery.gte('date', dateFilter)
+  const { data: writeOffs } = await writeOffsQuery
+  const writeOffLosses = writeOffs?.reduce((sum, w) => sum + Number(w.estimated_cost), 0) ?? 0
+
   // Low stock ingredients
   const { data: lowStock } = await supabase
     .from('ingredients')
@@ -48,8 +54,9 @@ export async function getDashboardData(period: 'week' | 'month' | 'all' = 'month
   return {
     expenses,
     otherExpenses: otherExpensesTotal,
+    writeOffLosses,
     revenue,
-    profit: revenue - expenses - otherExpensesTotal,
+    profit: revenue - expenses - otherExpensesTotal - writeOffLosses,
     ingredients: lowStock ?? [],
   }
 }

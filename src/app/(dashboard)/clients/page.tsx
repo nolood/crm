@@ -1,13 +1,6 @@
 import { getClients } from '@/lib/actions/clients'
 import { ClientForm } from './client-form'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
+import { ClientsTable } from './clients-table'
 
 export default async function ClientsPage(): Promise<React.ReactElement> {
   const clients = await getClients()
@@ -19,36 +12,7 @@ export default async function ClientsPage(): Promise<React.ReactElement> {
         <ClientForm />
       </div>
 
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Имя</TableHead>
-              <TableHead>Телефон</TableHead>
-              <TableHead>Instagram</TableHead>
-              <TableHead>Заметки</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {clients.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={4} className="text-center text-muted-foreground">
-                  Нет клиентов
-                </TableCell>
-              </TableRow>
-            ) : (
-              clients.map((client) => (
-                <TableRow key={client.id}>
-                  <TableCell className="font-medium">{client.name}</TableCell>
-                  <TableCell>{client.phone || '—'}</TableCell>
-                  <TableCell>{client.instagram || '—'}</TableCell>
-                  <TableCell className="max-w-[200px] truncate">{client.notes || '—'}</TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </div>
+      <ClientsTable clients={clients} />
     </div>
   )
 }

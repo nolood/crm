@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useMemo } from 'react'
+import { useFormStatus } from 'react-dom'
 import { createProduction } from '@/lib/actions/production'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -22,6 +23,15 @@ import {
 import { Badge } from '@/components/ui/badge'
 import { toast } from 'sonner'
 import type { Ingredient } from '@/lib/types'
+
+function SubmitButton() {
+  const { pending } = useFormStatus()
+  return (
+    <Button type="submit" className="w-full" disabled={pending}>
+      {pending ? 'Создание...' : 'Записать'}
+    </Button>
+  )
+}
 
 export function ProductionForm({
   recipes,
@@ -123,7 +133,7 @@ export function ProductionForm({
             </div>
           )}
 
-          <Button type="submit" className="w-full">Записать</Button>
+          <SubmitButton />
         </form>
       </DialogContent>
     </Dialog>

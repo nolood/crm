@@ -19,6 +19,19 @@ export type Purchase = {
   ingredient?: Ingredient
 }
 
+export type PurchaseHistory = {
+  id: string
+  purchase_id: string
+  user_id: string
+  ingredient_id: string
+  quantity: number
+  price_per_unit: number
+  total_price: number
+  date: string
+  changed_at: string
+  ingredient?: Ingredient
+}
+
 export type Recipe = {
   id: string
   user_id: string
@@ -96,6 +109,18 @@ export type Expense = {
   amount: number
   date: string
   created_at: string
+}
+
+export type WriteOff = {
+  id: string
+  user_id: string
+  ingredient_id: string
+  quantity: number
+  note: string | null
+  estimated_cost: number
+  date: string
+  created_at: string
+  ingredient?: Ingredient
 }
 
 export type ActionResult = {

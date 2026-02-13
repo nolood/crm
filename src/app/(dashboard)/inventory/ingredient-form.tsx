@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useFormStatus } from 'react-dom'
 import { createIngredient } from '@/lib/actions/ingredients'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -22,6 +23,15 @@ import {
 import { toast } from 'sonner'
 
 const units = ['г', 'кг', 'мл', 'л', 'шт']
+
+function SubmitButton() {
+  const { pending } = useFormStatus()
+  return (
+    <Button type="submit" className="w-full" disabled={pending}>
+      {pending ? 'Добавление...' : 'Добавить'}
+    </Button>
+  )
+}
 
 export function IngredientForm() {
   const [open, setOpen] = useState(false)
@@ -63,7 +73,7 @@ export function IngredientForm() {
               </SelectContent>
             </Select>
           </div>
-          <Button type="submit" className="w-full">Добавить</Button>
+          <SubmitButton />
         </form>
       </DialogContent>
     </Dialog>

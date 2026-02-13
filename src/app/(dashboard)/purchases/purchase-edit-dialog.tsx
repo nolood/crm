@@ -1,8 +1,7 @@
 'use client'
 
-import { useState } from 'react'
 import { useFormStatus } from 'react-dom'
-import { createPurchase } from '@/lib/actions/purchases'
+import { updatePurchase } from '@/lib/actions/purchases'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -11,7 +10,6 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '@/components/ui/dialog'
 import {
   Select,
@@ -21,43 +19,53 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { toast } from 'sonner'
-import type { Ingredient } from '@/lib/types'
+import type { Purchase, Ingredient } from '@/lib/types'
 
 function SubmitButton() {
   const { pending } = useFormStatus()
   return (
     <Button type="submit" className="w-full" disabled={pending}>
-      {pending ? 'Добавление...' : 'Добавить'}
+      {pending ? 'Сохранение...' : 'Сохранить'}
     </Button>
   )
 }
 
-export function PurchaseForm({ ingredients }: { ingredients: Ingredient[] }) {
-  const [open, setOpen] = useState(false)
+interface PurchaseEditDialogProps {
+  purchase: Purchase | null
+  ingredients: Ingredient[]
+  open: boolean
+  onOpenChange: (open: boolean) => void
+}
+
+export function PurchaseEditDialog({
+  purchase,
+  ingredients,
+  open,
+  onOpenChange,
+}: PurchaseEditDialogProps) {
+  if (!purchase) return null
 
   async function handleSubmit(formData: FormData) {
-    const result = await createPurchase(formData)
+    const result = await updatePurchase(formData)
     if (result.success) {
-      toast.success('Закупка добавлена')
-      setOpen(false)
+      toast.success('Закупка обновлена')
+      onOpenChange(false)
     } else {
       toast.error(result.error)
     }
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button>Добавить закупку</Button>
-      </DialogTrigger>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Новая закупка</DialogTitle>
+          <DialogTitle>Редактировать закупку</DialogTitle>
         </DialogHeader>
         <form action={handleSubmit} className="space-y-4">
+          <input type="hidden" name="purchase_id" value={purchase.id} />
           <div className="space-y-2">
             <Label>Ингредиент</Label>
-            <Select name="ingredient_id" required>
+            <Select name="ingredient_id" defaultValue={purchase.ingredient_id} required>
               <SelectTrigger>
                 <SelectValue placeholder="Выберите ингредиент" />
               </SelectTrigger>
@@ -72,15 +80,37 @@ export function PurchaseForm({ ingredients }: { ingredients: Ingredient[] }) {
           </div>
           <div className="space-y-2">
             <Label htmlFor="quantity">Количество</Label>
-            <Input id="quantity" name="quantity" type="number" step="0.01" min="0" required />
+            <Input
+              id="quantity"
+              name="quantity"
+              type="number"
+              step="0.01"
+              min="0"
+              defaultValue={purchase.quantity}
+              required
+            />
           </div>
           <div className="space-y-2">
             <Label htmlFor="price_per_unit">Цена за единицу (₽)</Label>
-            <Input id="price_per_unit" name="price_per_unit" type="number" step="0.01" min="0" required />
+            <Input
+              id="price_per_unit"
+              name="price_per_unit"
+              type="number"
+              step="0.01"
+              min="0"
+              defaultValue={purchase.price_per_unit}
+              required
+            />
           </div>
           <div className="space-y-2">
             <Label htmlFor="date">Дата</Label>
-            <Input id="date" name="date" type="date" defaultValue={new Date().toISOString().split('T')[0]} required />
+            <Input
+              id="date"
+              name="date"
+              type="date"
+              defaultValue={purchase.date}
+              required
+            />
           </div>
           <SubmitButton />
         </form>
