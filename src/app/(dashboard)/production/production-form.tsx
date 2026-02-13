@@ -109,7 +109,7 @@ export function ProductionForm({
           {deductions.length > 0 && (
             <div className="space-y-2 rounded-md border p-3">
               <p className="text-sm font-medium">Будет списано:</p>
-              {deductions.map((d, i) => (
+              {deductions.map((d: { name: string; unit: string; needed: number; available: number; enough: boolean }, i: number) => (
                 <div key={i} className="flex justify-between text-sm">
                   <span>{d.name}</span>
                   <span className="flex items-center gap-2">

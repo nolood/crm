@@ -13,24 +13,12 @@ import {
 } from '@/components/ui/table'
 import { format } from 'date-fns'
 import { ru } from 'date-fns/locale'
-import type { Order, OrderItem } from '@/lib/types'
-
-interface OrderWithRelations extends Order {
-  client?: { name: string } | null
-  order_items?: Array<OrderItem & {
-    recipe?: { name: string } | null
-  }> | null
-}
-
 export default async function OrdersPage() {
   const [orders, clients, recipes] = await Promise.all([
     getOrders(),
     getClients(),
     getRecipes(),
   ])
-
-  // Type assertion since we know the shape from the query
-  const typedOrders = orders as unknown as OrderWithRelations[]
 
   return (
     <div className="space-y-4">
@@ -51,19 +39,19 @@ export default async function OrdersPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {typedOrders.length === 0 ? (
+            {orders.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={5} className="text-center text-muted-foreground">
                   Нет заказов
                 </TableCell>
               </TableRow>
             ) : (
-              typedOrders.map((order) => (
+              orders.map((order: any) => (
                 <TableRow key={order.id}>
                   <TableCell>{format(new Date(order.date), 'd MMM yyyy', { locale: ru })}</TableCell>
                   <TableCell>{order.client?.name || '—'}</TableCell>
                   <TableCell className="text-sm">
-                    {order.order_items?.map((item) => (
+                    {order.order_items?.map((item: any) => (
                       <div key={item.id}>
                         {item.recipe?.name} x{item.quantity}
                       </div>
